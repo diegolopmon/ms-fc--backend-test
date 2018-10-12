@@ -24,11 +24,11 @@ public class TweetService {
     }
 
     /**
-      Push tweet to repository
-      Parameter - publisher - creator of the Tweet
-      Parameter - text - Content of the Tweet
-      Result - recovered Tweet
-    */
+     * Push tweet to repository
+     *
+     * @param publisher Tweet creator
+     * @param text      Tweet content
+     */
     public void publishTweet(String publisher, String text) {
         Optional.ofNullable(publisher).filter(s -> !s.isEmpty()).orElseThrow(() -> new IllegalArgumentException("Publisher must not be null or empty"));
         Optional.ofNullable(text).filter(s -> !s.isEmpty()).orElseThrow(() -> new IllegalArgumentException("text must not be null or empty"));
@@ -46,19 +46,20 @@ public class TweetService {
     }
 
     /**
-      Recover tweet from repository
-      Parameter - id - id of the Tweet to retrieve
-      Result - retrieved Tweet
-    */
+     * Recover tweet from repository
+     *
+     * @param id id of the Tweet to retrieve
+     * @return retrieved Tweet
+     */
     public Tweet getTweet(Long id) {
       return this.entityManager.find(Tweet.class, id);
     }
 
     /**
-      Recover tweet from repository
-      Parameter - id - id of the Tweet to retrieve
-      Result - retrieved Tweet
-    */
+     * List all tweets from repository
+     *
+     * @return Tweet list
+     */
     public List<Tweet> listAllTweets() {
         List<Tweet> result = new ArrayList<Tweet>();
         this.metricWriter.increment(new Delta<Number>("times-queried-tweets", 1));
