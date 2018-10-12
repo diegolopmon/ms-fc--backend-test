@@ -15,7 +15,7 @@ public class Tweet {
     private Long id;
     @Column(nullable = false)
     private String publisher;
-    @Column(nullable = false, length = 140)
+    @Column(nullable = false)
     private String tweet;
     @JsonIgnore
     @Column(nullable = false)

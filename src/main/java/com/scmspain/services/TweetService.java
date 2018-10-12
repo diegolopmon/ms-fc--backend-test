@@ -10,6 +10,7 @@ import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -29,7 +30,10 @@ public class TweetService {
       Result - recovered Tweet
     */
     public void publishTweet(String publisher, String text) {
-        if (publisher != null && publisher.length() > 0 && text != null && text.length() > 0 && text.length() < 140) {
+        Optional.ofNullable(publisher).filter(s -> !s.isEmpty()).orElseThrow(() -> new IllegalArgumentException("Publisher must not be null or empty"));
+        Optional.ofNullable(text).filter(s -> !s.isEmpty()).orElseThrow(() -> new IllegalArgumentException("text must not be null or empty"));
+
+        if (checkTextLenght(text)) {
             Tweet tweet = new Tweet();
             tweet.setTweet(text);
             tweet.setPublisher(publisher);
@@ -65,4 +69,18 @@ public class TweetService {
         }
         return result;
     }
+
+
+    /**
+     * Check if the text contains more than 140 characters
+     *
+     * @param text text
+     * @return result
+     */
+    private boolean checkTextLenght(String text) {
+        String regex = "(https?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
+        String textWithoutUrl = text.replaceAll(regex, "");
+        return textWithoutUrl.length() < 140;
+    }
+
 }
