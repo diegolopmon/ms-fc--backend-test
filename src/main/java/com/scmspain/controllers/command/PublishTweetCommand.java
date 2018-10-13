@@ -1,4 +1,4 @@
-package com.scmspain.controller.command;
+package com.scmspain.controllers.command;
 
 public class PublishTweetCommand {
     private String publisher;
