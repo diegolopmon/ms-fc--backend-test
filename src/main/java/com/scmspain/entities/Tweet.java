@@ -32,6 +32,13 @@ public class Tweet {
     public Tweet() {
     }
 
+    public Tweet(String publisher, String tweet, boolean discarded, Date publicationDate) {
+        this.publisher = publisher;
+        this.tweet = tweet;
+        this.discarded = discarded;
+        this.publicationDate = publicationDate;
+    }
+
     public Long getId() {
         return id;
     }
