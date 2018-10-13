@@ -2,6 +2,7 @@ package com.scmspain.services;
 
 import com.scmspain.entities.Tweet;
 import com.scmspain.repositories.TweetRepository;
+import com.scmspain.utils.TweetValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.metrics.writer.Delta;
 import org.springframework.boot.actuate.metrics.writer.MetricWriter;
@@ -19,11 +20,13 @@ public class TweetService {
 
     private MetricWriter metricWriter;
     private TweetRepository tweetRepository;
+    private TweetValidator tweetValidator;
 
     @Autowired
-    public TweetService(MetricWriter metricWriter, TweetRepository tweetRepository) {
+    public TweetService(MetricWriter metricWriter, TweetRepository tweetRepository, TweetValidator tweetValidator) {
         this.metricWriter = metricWriter;
         this.tweetRepository = tweetRepository;
+        this.tweetValidator = tweetValidator;
     }
 
     /**
@@ -33,21 +36,17 @@ public class TweetService {
      * @param text      Tweet content
      */
     public void publishTweet(String publisher, String text) {
-        Optional.ofNullable(publisher).filter(s -> !s.isEmpty()).orElseThrow(() -> new IllegalArgumentException("Publisher must not be null or empty"));
-        Optional.ofNullable(text).filter(s -> !s.isEmpty()).orElseThrow(() -> new IllegalArgumentException("text must not be null or empty"));
 
-        if (checkTextLenght(text)) {
-            Tweet tweet = new Tweet();
-            tweet.setTweet(text);
-            tweet.setPublisher(publisher);
-            tweet.setDiscarded(false);
-            tweet.setPublicationDate(new Date());
+        Tweet tweet = new Tweet();
+        tweet.setTweet(text);
+        tweet.setPublisher(publisher);
+        tweet.setDiscarded(false);
+        tweet.setPublicationDate(new Date());
 
-            metricWriter.increment(new Delta<Number>("times-published-tweets", 1));
-            tweetRepository.save(tweet);
-        } else {
-            throw new IllegalArgumentException("Tweet must not be greater than 140 characters");
-        }
+        tweetValidator.validate(tweet);
+
+        metricWriter.increment(new Delta<Number>("times-published-tweets", 1));
+        tweetRepository.save(tweet);
     }
 
     /**
@@ -96,19 +95,4 @@ public class TweetService {
         tweetRepository.save(tweet);
         metricWriter.increment(new Delta<Number>("times-discarded-tweets", 1));
     }
-
-
-    /**
-     * Check if the text contains more than 140 characters
-     *
-     * @param text text
-     * @return result
-     */
-    private boolean checkTextLenght(String text) {
-        String regex = "(https?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
-        String textWithoutUrl = text.replaceAll(regex, "");
-        return textWithoutUrl.length() < 140;
-    }
-
-
 }
