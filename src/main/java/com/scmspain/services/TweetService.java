@@ -1,26 +1,29 @@
 package com.scmspain.services;
 
 import com.scmspain.entities.Tweet;
+import com.scmspain.repositories.TweetRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.metrics.writer.Delta;
 import org.springframework.boot.actuate.metrics.writer.MetricWriter;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 import javax.transaction.Transactional;
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
 @Transactional
 public class TweetService {
-    private EntityManager entityManager;
-    private MetricWriter metricWriter;
 
-    public TweetService(EntityManager entityManager, MetricWriter metricWriter) {
-        this.entityManager = entityManager;
+    private MetricWriter metricWriter;
+    private TweetRepository tweetRepository;
+
+    @Autowired
+    public TweetService(MetricWriter metricWriter, TweetRepository tweetRepository) {
         this.metricWriter = metricWriter;
+        this.tweetRepository = tweetRepository;
     }
 
     /**
@@ -37,9 +40,11 @@ public class TweetService {
             Tweet tweet = new Tweet();
             tweet.setTweet(text);
             tweet.setPublisher(publisher);
+            tweet.setDiscarded(false);
+            tweet.setPublicationDate(new Date());
 
-            this.metricWriter.increment(new Delta<Number>("published-tweets", 1));
-            this.entityManager.persist(tweet);
+            metricWriter.increment(new Delta<Number>("times-published-tweets", 1));
+            tweetRepository.save(tweet);
         } else {
             throw new IllegalArgumentException("Tweet must not be greater than 140 characters");
         }
@@ -52,7 +57,7 @@ public class TweetService {
      * @return retrieved Tweet
      */
     public Tweet getTweet(Long id) {
-      return this.entityManager.find(Tweet.class, id);
+        return tweetRepository.findOne(id);
     }
 
     /**
@@ -61,14 +66,35 @@ public class TweetService {
      * @return Tweet list
      */
     public List<Tweet> listAllTweets() {
-        List<Tweet> result = new ArrayList<Tweet>();
-        this.metricWriter.increment(new Delta<Number>("times-queried-tweets", 1));
-        TypedQuery<Long> query = this.entityManager.createQuery("SELECT id FROM Tweet AS tweetId WHERE pre2015MigrationStatus<>99 ORDER BY id DESC", Long.class);
-        List<Long> ids = query.getResultList();
-        for (Long id : ids) {
-            result.add(getTweet(id));
+        metricWriter.increment(new Delta<Number>("times-queried-tweets", 1));
+        return tweetRepository.findAllByDiscardedFalseOrderByPublicationDateDesc();
+    }
+
+    /**
+     * List all discarded tweets from repository
+     *
+     * @return Tweet list
+     */
+    public List<Tweet> listAllDiscardedTweets() {
+        metricWriter.increment(new Delta<Number>("times-queried-tweets", 1));
+        return tweetRepository.findAllByDiscardedTrueOrderByDiscardedDateDesc();
+    }
+
+    /**
+     * Discard a tweet from repository
+     *
+     * @param id id of tweet to be removed
+     */
+    public void discardTweet(Long id) {
+        Tweet tweet = Optional.ofNullable(getTweet(id)).orElseThrow(() -> new NoSuchElementException("Tweet does not exits"));
+        if (tweet.getDiscarded()) {
+            throw new IllegalArgumentException("Tweet already discarded");
         }
-        return result;
+
+        tweet.setDiscarded(true);
+        tweet.setDiscardedDate(new Date());
+        tweetRepository.save(tweet);
+        metricWriter.increment(new Delta<Number>("times-discarded-tweets", 1));
     }
 
 
@@ -83,5 +109,6 @@ public class TweetService {
         String textWithoutUrl = text.replaceAll(regex, "");
         return textWithoutUrl.length() < 140;
     }
+
 
 }

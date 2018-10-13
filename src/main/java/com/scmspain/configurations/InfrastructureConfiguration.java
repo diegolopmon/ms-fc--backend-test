@@ -1,4 +1,4 @@
-package com.scmspain.configuration;
+package com.scmspain.configurations;
 
 import org.springframework.boot.actuate.autoconfigure.ExportMetricWriter;
 import org.springframework.boot.actuate.metrics.jmx.JmxMetricWriter;
@@ -9,7 +9,8 @@ import org.springframework.jmx.export.MBeanExporter;
 
 @Configuration
 public class InfrastructureConfiguration {
-    @Bean @ExportMetricWriter
+    @Bean
+    @ExportMetricWriter
     public MetricWriter getMetricWriter(MBeanExporter exporter) {
         return new JmxMetricWriter(exporter);
     }
