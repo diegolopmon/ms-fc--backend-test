@@ -2,6 +2,7 @@ package com.scmspain.controllers;
 
 import com.scmspain.controllers.command.DiscardTweetCommand;
 import com.scmspain.controllers.command.PublishTweetCommand;
+import com.scmspain.controllers.exception.ExceptionMessage;
 import com.scmspain.entities.Tweet;
 import com.scmspain.services.TweetService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,20 +48,14 @@ public class TweetController {
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(BAD_REQUEST)
     @ResponseBody
-    public Object invalidArgumentException(IllegalArgumentException ex) {
-        return new Object() {
-            public String message = ex.getMessage();
-            public String exceptionClass = ex.getClass().getSimpleName();
-        };
+    public ExceptionMessage invalidArgumentException(IllegalArgumentException ex) {
+        return new ExceptionMessage(ex);
     }
 
     @ExceptionHandler(NoSuchElementException.class)
     @ResponseStatus(BAD_REQUEST)
     @ResponseBody
     public Object noSucHElementException(NoSuchElementException ex) {
-        return new Object() {
-            public String message = ex.getMessage();
-            public String exceptionClass = ex.getClass().getSimpleName();
-        };
+        return new ExceptionMessage(ex);
     }
 }
