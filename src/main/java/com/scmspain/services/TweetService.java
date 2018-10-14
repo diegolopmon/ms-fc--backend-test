@@ -4,6 +4,7 @@ import com.scmspain.entities.Tweet;
 import com.scmspain.repositories.TweetRepository;
 import com.scmspain.utils.TweetValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.actuate.metrics.writer.Delta;
 import org.springframework.boot.actuate.metrics.writer.MetricWriter;
 import org.springframework.stereotype.Service;
@@ -17,13 +18,13 @@ import java.util.Optional;
 @Service
 @Transactional
 public class TweetService {
-
+    
     private MetricWriter metricWriter;
     private TweetRepository tweetRepository;
     private TweetValidator tweetValidator;
 
     @Autowired
-    public TweetService(MetricWriter metricWriter, TweetRepository tweetRepository, TweetValidator tweetValidator) {
+    public TweetService(@Qualifier("scm") MetricWriter metricWriter, TweetRepository tweetRepository, TweetValidator tweetValidator) {
         this.metricWriter = metricWriter;
         this.tweetRepository = tweetRepository;
         this.tweetValidator = tweetValidator;
