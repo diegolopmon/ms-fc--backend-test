@@ -23,18 +23,21 @@ public class TweetValidator {
     }
 
     private void validatePublisher(String publisher) throws IllegalArgumentException {
-        Optional.ofNullable(publisher).filter(s -> !s.isEmpty()).orElseThrow(() -> new IllegalArgumentException("Publisher must not be null or empty"));
+        if (Optional.ofNullable(publisher).orElse("").isEmpty()) {
+            throw new IllegalArgumentException("Publisher must not be null or empty");
+        }
     }
 
-    private void validateText(String text) throws IllegalArgumentException  {
-        Optional.ofNullable(text).filter(s -> !s.isEmpty()).orElseThrow(() -> new IllegalArgumentException("text must not be null or empty"));
+    private void validateText(String text) throws IllegalArgumentException {
+        if (Optional.ofNullable(text).orElse("").isEmpty()) {
+            throw new IllegalArgumentException("text must not be null or empty");
+        }
         checkTextLenght(text);
     }
 
-    private void checkTextLenght(String text) throws IllegalArgumentException  {
-        String regex = "(https?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
-        String textWithoutUrl = text.replaceAll(regex, "");
-        if (textWithoutUrl.length() >= 140) {
+    private void checkTextLenght(String text) throws IllegalArgumentException {
+        String textWithoutUrl = text.replaceAll(HTTP_REGEX, "");
+        if (textWithoutUrl.length() >= TWEET_MAX_LENGTH) {
             throw new IllegalArgumentException("Tweet must not be greater than 140 character");
         }
     }

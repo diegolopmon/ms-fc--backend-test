@@ -18,7 +18,7 @@ import java.util.Optional;
 @Service
 @Transactional
 public class TweetService {
-    
+
     private MetricWriter metricWriter;
     private TweetRepository tweetRepository;
     private TweetValidator tweetValidator;
