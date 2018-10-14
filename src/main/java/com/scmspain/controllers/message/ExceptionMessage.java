@@ -1,4 +1,4 @@
-package com.scmspain.controllers.exception;
+package com.scmspain.controllers.message;
 
 public class ExceptionMessage {
 

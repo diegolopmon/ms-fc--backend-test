@@ -2,7 +2,7 @@ package com.scmspain.controllers;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.scmspain.controllers.exception.ExceptionMessage;
+import com.scmspain.controllers.message.ExceptionMessage;
 import com.scmspain.entities.Tweet;
 import com.scmspain.services.TweetService;
 import org.junit.Test;

@@ -2,7 +2,7 @@ package com.scmspain.controllers;
 
 import com.scmspain.controllers.command.DiscardTweetCommand;
 import com.scmspain.controllers.command.PublishTweetCommand;
-import com.scmspain.controllers.exception.ExceptionMessage;
+import com.scmspain.controllers.message.ExceptionMessage;
 import com.scmspain.entities.Tweet;
 import com.scmspain.services.TweetService;
 import org.springframework.beans.factory.annotation.Autowired;
