@@ -6,6 +6,7 @@ import com.scmspain.utils.TweetValidator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.actuate.metrics.writer.Delta;
 import org.springframework.boot.actuate.metrics.writer.MetricWriter;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -30,6 +31,7 @@ public class TweetServiceTest {
     private TweetService tweetService;
 
     @MockBean
+    @Qualifier("scm")
     private MetricWriter metricWriter;
     @MockBean
     private TweetRepository tweetRepository;
